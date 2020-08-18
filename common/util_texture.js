@@ -2,26 +2,34 @@
  * The MIT License (MIT)
  * Copyright (c) 2020 terryky1220@gmail.com
  * ------------------------------------------------ */
-GLUtil.video_ready  = false;
-GLUtil.camera_ready = false;
 
-/* ---------------------------------------------------------------- *
- *  Initialize Image Texture
- * ---------------------------------------------------------------- */
-GLUtil.load_image_texture = function (gl, url)
+
+GLUtil.create_texture = function (gl)
 {
     let texid = gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, texid);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    return texid;
+}
+
+
+/* ---------------------------------------------------------------- *
+ *  Create Image Texture
+ * ---------------------------------------------------------------- */
+GLUtil.create_image_texture = function (gl, url)
+{
+    let texid = GLUtil.create_texture (gl);
     let teximage = new Image();
 
     teximage.onload = function ()
     {
         gl.bindTexture(gl.TEXTURE_2D, texid);
         gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, teximage);
-
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     }
     teximage.src = url;
 
@@ -30,17 +38,21 @@ GLUtil.load_image_texture = function (gl, url)
 
 
 /* ---------------------------------------------------------------- *
- *  Initialize Video Texture
+ *  Create Video Texture
  * ---------------------------------------------------------------- */
-GLUtil.load_video = function (url)
+GLUtil.create_video_texture = function (gl, url)
 {
-    const video = document.createElement('video');
+    let video_tex = {};
+    video_tex.ready = false;
+    video_tex.texid = GLUtil.create_texture (gl);
+
+    let video = document.createElement('video');
     video.autoplay = true;
     video.muted    = true;
     video.loop     = true;
 
-    var playing    = false;
-    var timeupdate = false;
+    let playing    = false;
+    let timeupdate = false;
 
     // Waiting for these 2 events ensures there is data in the video
     video.addEventListener('playing',    function(){playing    = true; checkReady();}, true);
@@ -49,37 +61,45 @@ GLUtil.load_video = function (url)
     video.src = url;
     video.play();
 
-    function checkReady() 
+    function checkReady()
     {
         if (playing && timeupdate)
         {
-            GLUtil.video_ready = true;
+            video_tex.ready = true;
         }
     }
 
-    return video;
+    video_tex.video = video;
+    return video_tex;
 }
 
-GLUtil.is_video_ready = function ()
+GLUtil.is_video_ready = function (video_tex)
 {
-    return GLUtil.video_ready;
+    return video_tex.ready;
 }
 
-GLUtil.update_video_texture = function (gl, texid, video)
+GLUtil.update_video_texture = function (gl, video_tex)
 {
-    gl.bindTexture(gl.TEXTURE_2D, texid);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    if (video_tex.ready)
+    {
+        gl.bindTexture(gl.TEXTURE_2D, video_tex.texid);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video_tex.video);
+    }
 }
 
 
 /* ---------------------------------------------------------------- *
- *  Initialize Web Camera Texture
+ *  Create Web Camera Texture
  * ---------------------------------------------------------------- */
-GLUtil.init_camera = function ()
+GLUtil.create_camera_texture = function (gl)
 {
-    var camera = document.createElement('video');
-    camera.autoplay = true;
-    camera.loop     = true;
+    let camera_tex = {};
+    camera_tex.ready = false;
+    camera_tex.texid = GLUtil.create_texture (gl);
+
+    let video = document.createElement('video');
+    video.autoplay = true;
+    video.loop     = true;
 
     navigator.getUserMedia = navigator.getUserMedia ||
                              navigator.webkitGetUserMedia ||
@@ -93,10 +113,10 @@ GLUtil.init_camera = function ()
     {
         function on_camera_metadata_loaded()
         {
-            GLUtil.camera_ready = true;
+            camera_tex.ready = true;
         }
-        camera.onloadedmetadata = on_camera_metadata_loaded;
-        camera.srcObject        = stream;
+        video.onloadedmetadata = on_camera_metadata_loaded;
+        video.srcObject        = stream;
     }
 
     function on_camera_failed (err)
@@ -113,18 +133,22 @@ GLUtil.init_camera = function ()
         on_camera_failed
     );
 
-    return camera;
+    camera_tex.video = video;
+    return camera_tex;
 }
 
 
-GLUtil.is_camera_ready = function ()
+GLUtil.is_camera_ready = function (camera_tex)
 {
-    return GLUtil.camera_ready;
+    return camera_tex.ready;
 }
 
-GLUtil.update_camera_texture = function (gl, texid, camera)
+GLUtil.update_camera_texture = function (gl, camera_tex)
 {
-    gl.bindTexture(gl.TEXTURE_2D, texid);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, camera);
+    if (camera_tex.ready)
+    {
+        gl.bindTexture(gl.TEXTURE_2D, camera_tex.texid);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, camera_tex.video);
+    }
 }
 
