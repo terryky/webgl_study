@@ -143,6 +143,7 @@ function on_camera_ready (stream)
     g_video.loop = true;
     g_video.onloadedmetadata = on_camera_metadata_loaded;
     g_video.srcObject = stream;
+    g_video.play();
 }
 
 function on_camera_failed (err)
