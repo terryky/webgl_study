@@ -152,22 +152,24 @@ function on_camera_failed (err)
 
 function init_camera()
 {
-    navigator.getUserMedia = navigator.getUserMedia ||
-                             navigator.webkitGetUserMedia ||
-                             navigator.mozGetUserMedia;
-    if (!navigator.getUserMedia)
+    navigator.mediaDevices = navigator.mediaDevices ||
+                             navigator.mozGetUserMedia
+                             navigator.webkitGetUserMedia;
+
+    if (!navigator.mediaDevices)
     {
-        alert('not supported getUserMedia');
+        alert('not supported navigator.mediaDevices');
+        return;
     }
 
-    navigator.getUserMedia(
-        {
-            video: true,
-            audio: false
-        },
-        on_camera_ready,
-        on_camera_failed
-    );
+    const constraints = {
+        audio : false,
+        video : true
+    };
+
+    const promise = navigator.mediaDevices.getUserMedia (constraints);
+    promise.then (on_camera_ready)
+           .catch(on_camera_failed);
 }
 
 
