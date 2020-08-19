@@ -101,12 +101,13 @@ GLUtil.create_camera_texture = function (gl)
     video.autoplay = true;
     video.loop     = true;
 
-    navigator.getUserMedia = navigator.getUserMedia ||
-                             navigator.webkitGetUserMedia ||
-                             navigator.mozGetUserMedia;
-    if (!navigator.getUserMedia)
+    navigator.mediaDevices = navigator.mediaDevices ||
+                             navigator.mozGetUserMedia
+                             navigator.webkitGetUserMedia;
+    if (!navigator.mediaDevices)
     {
-        alert('not supported getUserMedia');
+        alert('not supported navigator.mediaDevices');
+        return camera_tex;
     }
 
     function on_camera_ready (stream)
@@ -117,21 +118,23 @@ GLUtil.create_camera_texture = function (gl)
         }
         video.onloadedmetadata = on_camera_metadata_loaded;
         video.srcObject        = stream;
+        video.play();
     }
 
     function on_camera_failed (err)
     {
         alert('failed to initialize a camera');
+        return camera_tex;
     }
 
-    navigator.getUserMedia(
-        {
-            video: true,
-            audio: false
-        },
-        on_camera_ready,
-        on_camera_failed
-    );
+    const constraints = {
+        audio : false,
+        video : true
+    };
+
+    const promise = navigator.mediaDevices.getUserMedia (constraints);
+    promise.then (on_camera_ready)
+           .catch(on_camera_failed);
 
     camera_tex.video = video;
     return camera_tex;
