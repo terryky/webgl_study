@@ -4,6 +4,9 @@
  * ------------------------------------------------ */
 const M_PId180f = (3.1415926 / 180.0)
 
+function DEG_TO_RAD(degree) {return (Math.PI / 180.0 * degree);}
+function RAD_TO_DEG(rad)    {return (rad * 180.0 / Math.PI); }
+
 
 function vec3_length (v)
 {
