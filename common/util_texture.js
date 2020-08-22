@@ -73,6 +73,21 @@ GLUtil.create_video_texture = function (gl, url)
     return video_tex;
 }
 
+GLUtil.get_video_resolution = function (video_tex)
+{
+    let width  = 0;
+    let height = 0;
+    if (video_tex.ready)
+    {
+        width  = video_tex.video.videoWidth;
+        height = video_tex.video.videoHeight;
+    }
+    return {
+        w: width,
+        h: height,
+    };
+}
+
 GLUtil.is_video_ready = function (video_tex)
 {
     return video_tex.ready;
@@ -129,7 +144,10 @@ GLUtil.create_camera_texture = function (gl)
 
     const constraints = {
         audio : false,
-        video : true
+        video: {
+            width:  {ideal: 640},
+            height: {ideal: 480}
+        }
     };
 
     const promise = navigator.mediaDevices.getUserMedia (constraints);
@@ -140,6 +158,20 @@ GLUtil.create_camera_texture = function (gl)
     return camera_tex;
 }
 
+GLUtil.get_camera_resolution = function (camera_tex)
+{
+    let width  = 0;
+    let height = 0;
+    if (camera_tex.ready)
+    {
+        width  = camera_tex.video.videoWidth;
+        height = camera_tex.video.videoHeight;
+    }
+    return {
+        w: width,
+        h: height,
+    };
+}
 
 GLUtil.is_camera_ready = function (camera_tex)
 {
