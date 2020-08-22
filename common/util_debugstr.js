@@ -92,6 +92,11 @@ function init_dbgstr (gl, win_w, win_h)
     dbgstr.vbo_uv  = gl.createBuffer();
 }
 
+dbgstr.resize_viewport = function (gl, win_w, win_h)
+{
+    dbgstr.s_wndW = win_w;
+    dbgstr.s_wndH = win_h;
+}
 
 dbgstr.draw_dbgstr_ex = function (gl, str, x, y, scale, col_fg, col_bg)
 {

@@ -96,6 +96,29 @@ pmeter.init_pmeter = function (gl, win_w, win_h, data_num)
     pmeter.vbo_vtx = gl.createBuffer();
 }
 
+pmeter.resize = function (gl, win_w, win_h, data_num)
+{
+    if (data_num < 0)
+        data_num = 0;
+
+    pmeter.wndW = win_w;
+    pmeter.wndH = win_h;
+    pmeter.data_num = data_num;
+
+    for (let dpy = 0; dpy < PMETER_DPY_NUM; dpy ++)
+    {
+        for (let i = 0; i < PMETER_MAX_LAP_NUM; i ++ )
+        {
+            pmeter.vertex[dpy][i] = new Array(data_num * 2);
+            for (let j = 0; j < data_num; j ++ )
+            {
+                pmeter.vertex[dpy][i][2 * j    ] = 0;
+                pmeter.vertex[dpy][i][2 * j + 1] = j;
+            }
+        }
+    }
+}
+
 pmeter.set_pmeter_val = function (dpy_id, id, val)
 {
     if (id >= PMETER_MAX_LAP_NUM)
