@@ -30,6 +30,7 @@ GLUtil.create_image_texture = function (gl, url)
     {
         gl.bindTexture(gl.TEXTURE_2D, texid);
         gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, teximage);
+        gl.generateMipmap (gl.TEXTURE_2D);
     }
     teximage.src = url;
 
