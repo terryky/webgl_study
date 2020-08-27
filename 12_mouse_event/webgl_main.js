@@ -2,9 +2,20 @@
 /* can we use touch event ? */
 let s_supportTouch = 'ontouchend' in document;
 let s_mouse_down = false;
-let s_mouse_pos = {x:0, y:0};
+let s_mouse_enter= false;
+let s_clicked    = false;
+let s_click_count    = 0;
+let s_dblclick_count = 0;
+let s_mouse_pos  = {x:0, y:0};
+let s_mouse_pos0 = {x:0, y:0};
 let s_canvas;
 let s_mouse_trajectory = [];
+let s_mdl_qtn  = new Array(4);
+let s_mdl_qtn0 = new Array(4);
+let s_mdl_mtx  = new Array(16);
+
+let s_win_w;
+let s_win_h;
 
 function init_stats ()
 {
@@ -30,6 +41,9 @@ function on_mouse_down (event)
     s_mouse_pos = mouse_client_coord (s_canvas, event);
     s_mouse_down = true;
     s_mouse_trajectory = [];
+
+    s_mouse_pos0 = s_mouse_pos;
+    quaternion_copy (s_mdl_qtn0, s_mdl_qtn);
 }
 
 function on_mouse_up (event)
@@ -44,9 +58,46 @@ function on_mouse_move (event)
     if (s_mouse_down)
     {
         s_mouse_trajectory.push (s_mouse_pos);
-    }
 
+        let dx = s_mouse_pos.x - s_mouse_pos0.x;
+        let dy = s_mouse_pos.y - s_mouse_pos0.y;
+        let axis = [];
+        axis[0] = 2 * Math.PI * dy / s_win_h;
+        axis[1] = 2 * Math.PI * dx / s_win_w;
+        axis[2] = 0;
+
+        let rot = vec3_normalize (axis);
+        let dqtn = [];
+        quaternion_rotate (dqtn, rot, axis[0], axis[1], axis[2]);
+        quaternion_mult (s_mdl_qtn, dqtn, s_mdl_qtn0);
+        quaternion_to_matrix (s_mdl_mtx, s_mdl_qtn);
+    }
 }
+
+function on_mouse_enter (event)
+{
+    s_mouse_enter = true;
+}
+
+function on_mouse_leave (event)
+{
+    s_mouse_enter = false;
+}
+
+function on_click (event)
+{
+    s_click_count ++;
+    s_clicked = true;
+}
+
+function on_dblclick (event)
+{
+    s_dblclick_count ++;
+
+    quaternion_identity (s_mdl_qtn);
+    quaternion_to_matrix (s_mdl_mtx, s_mdl_qtn);
+}
+
 
 function draw_mouse_trajectory (gl)
 {
@@ -119,15 +170,22 @@ function startWebGL()
     gl.clear (gl.COLOR_BUFFER_BIT);
 
     s_canvas = canvas;
-    canvas  .onmousedown = on_mouse_down;
-    document.onmouseup   = on_mouse_up;
-    document.onmousemove = on_mouse_move;
+    canvas  .addEventListener ('mousedown' , on_mouse_down );
+    document.addEventListener ('mouseup'   , on_mouse_up   );
+    document.addEventListener ('mousemove' , on_mouse_move );
+    canvas  .addEventListener ('mouseenter', on_mouse_enter);
+    canvas  .addEventListener ('mouseleave', on_mouse_leave);
+    canvas  .addEventListener ('click',      on_click      );
+    canvas  .addEventListener ('dblclick',   on_dblclick   );
+
 
     //const texid  = GLUtil.create_image_texture (gl, "../assets/webgl.png");
     //const video  = GLUtil.create_video_texture (gl, "../assets/BigBuckBunny_640x360.mp4");
     //const camera = GLUtil.create_camera_texture (gl);
     let win_w = canvas.clientWidth;
     let win_h = canvas.clientHeight;
+    s_win_w = win_w;
+    s_win_h = win_h;
 
     teapot.init_teapot (gl, win_w/win_h);
     r2d.init_2d_render (gl, win_w, win_h);
@@ -135,6 +193,14 @@ function startWebGL()
     init_dbgstr (gl, win_w, win_h);
     pmeter.init_pmeter (gl, win_w, win_h, win_h - 100);
     const stats = init_stats ();
+
+    let teapot_color = [];
+    teapot_color[0] = Math.random();
+    teapot_color[1] = Math.random();
+    teapot_color[2] = Math.random();
+
+    quaternion_identity (s_mdl_qtn);
+    quaternion_to_matrix (s_mdl_mtx, s_mdl_qtn);
 
     let count = 0;
     let prev_time_ms = performance.now();
@@ -151,19 +217,32 @@ function startWebGL()
         debug_log.innerHTML  = "";
         debug_log.innerHTML += "s_supportTouch = " + s_supportTouch + "<br>";
         debug_log.innerHTML += "s_mouse_down = "   + s_mouse_down + "<br>";
-        debug_log.innerHTML += "s_mouse_pos  = (" + s_mouse_pos.x + ", " + s_mouse_pos.y + ")" + "<br>";
+        debug_log.innerHTML += "s_mouse_pos  = (" + s_mouse_pos.x.toFixed(1) + ", " + s_mouse_pos.y.toFixed(1) + ")" + "<br>";
         debug_log.innerHTML += count;
 
         gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        /* [mouse click] ==> change teapot color */
+        if (s_clicked)
+        {
+            teapot_color[0] = Math.random();
+            teapot_color[1] = Math.random();
+            teapot_color[2] = Math.random();
+            s_clicked = false;
+        }
+
         {
             let matMV = new Array(16);
             matrix_identity (matMV);
-            matrix_translate (matMV, 0.0, 0.0, -5.0);
+            matrix_mult (matMV, s_mdl_mtx, matMV);
             matrix_rotate (matMV, count*1.0, 0.0, 1.0, 0.0);
             matrix_translate (matMV, 0.0, -1.5, 0.0);
 
-            teapot.draw_teapot (gl, matMV, [0.0, 0.5, 1.0]);
+            matMV[12] +=  0.0;
+            matMV[13] +=  0.0;
+            matMV[14] += -5.0;
+
+            teapot.draw_teapot (gl, matMV, teapot_color);
         }
 
         gl.disable (gl.DEPTH_TEST);
@@ -172,16 +251,27 @@ function startWebGL()
         if (s_mouse_down)
         {
             r2d.draw_2d_fillcircle (gl, s_mouse_pos.x, s_mouse_pos.y, 30, [0.0, 0.0, 1.0, 0.5]);
-            dbgstr.draw_dbgstr_ex (gl, "MOUSEDOWN", win_w - 120, 22 * 0, 1, [1.0, 1.0, 1.0, 1.0], [0.0, 1.0, 1.0, 1.0]);
+            dbgstr.draw_dbgstr_ex (gl, "MOUSEDOWN", win_w - 140, 22 * 0, 1, [1.0, 1.0, 1.0, 1.0], [0.0, 1.0, 1.0, 1.0]);
         }
         else
         {
-            dbgstr.draw_dbgstr (gl, "MOUSEUP  ",  win_w - 120, 22 * 0);
+            dbgstr.draw_dbgstr (gl, "MOUSEUP  ",  win_w - 140, 22 * 0);
         }
+
+        if (s_mouse_enter)
+            dbgstr.draw_dbgstr_ex (gl, "MOUSEENTER", win_w - 140, 22 * 1, 1, [1.0, 1.0, 1.0, 1.0], [0.0, 1.0, 1.0, 1.0]);
+        else
+            dbgstr.draw_dbgstr (gl, "MOUSELEAVE",  win_w - 140, 22 * 1);
+
+        let str;
+        str = "click=" + s_click_count;
+        dbgstr.draw_dbgstr (gl, str,  win_w - 140, 22 * 2);
+        str = "dblclick= " + s_dblclick_count;
+        dbgstr.draw_dbgstr (gl, str,  win_w - 140, 22 * 3);
 
         pmeter.draw_pmeter (gl, 0, 40);
 
-        let str = "Interval: " + interval_ms.toFixed(1) + " [ms]";
+        str = "Interval: " + interval_ms.toFixed(1) + " [ms]";
         dbgstr.draw_dbgstr (gl, str, 10, 10);
 
         count ++;
