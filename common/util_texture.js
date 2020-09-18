@@ -37,6 +37,29 @@ GLUtil.create_image_texture = function (gl, url)
     return texid;
 }
 
+GLUtil.create_image_texture_from_file = function (gl, url)
+{
+    let texid = GLUtil.create_texture (gl);
+    let teximage = new Image();
+    let reader = new FileReader();
+
+    teximage.onload = function ()
+    {
+        gl.bindTexture(gl.TEXTURE_2D, texid);
+        gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, teximage);
+        gl.generateMipmap (gl.TEXTURE_2D);
+    }
+
+    reader.onload = function (event)
+    {
+        let src = event.target.result;
+        teximage.src = src;
+    }
+    reader.readAsDataURL(url);
+
+    return texid;
+}
+
 
 /* ---------------------------------------------------------------- *
  *  Create Video Texture
