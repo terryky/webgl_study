@@ -9,6 +9,7 @@ function startWebGL()
     /* renderer */
     const renderer = new THREE.WebGLRenderer({
         alpha : false,
+        preserveDrawingBuffer: false,
         canvas: document.querySelector('#glcanvas')
     });
 
@@ -43,7 +44,7 @@ function startWebGL()
 
     function render()
     {
-        box.rotation.x = THREE.Math.DEG2RAD * 30;
+        box.rotation.x = THREE.MathUtils.degToRad(30.0);
         box.rotation.y += 0.01;
         renderer.render(scene, camera);
 
