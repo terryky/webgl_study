@@ -13,6 +13,7 @@ let s_mouse_trajectory = [];
 let s_mdl_qtn  = new Array(4);
 let s_mdl_qtn0 = new Array(4);
 let s_mdl_mtx  = new Array(16);
+let devicePixelRatio_;
 
 let s_ongoing_touch = [];
 
@@ -39,8 +40,11 @@ function init_stats ()
 function mouse_client_coord (canvas, event)
 {
     let rect = canvas.getBoundingClientRect ();
-    return {x: event.clientX - rect.left, 
-            y: event.clientY - rect.top};
+    let mpos = {x: event.clientX - rect.left,
+                y: event.clientY - rect.top};
+    mpos.x *= devicePixelRatio_;
+    mpos.y *= devicePixelRatio_;
+    return mpos;
 }
 
 function on_mouse_down (event)
@@ -120,9 +124,12 @@ function on_dblclick (event)
 function touch_client_coord (canvas, event, id)
 {
     let rect = canvas.getBoundingClientRect ();
-    return {x: event.changedTouches[id].pageX - rect.left, 
-            y: event.changedTouches[id].pageY - rect.top,
-            id: event.changedTouches[id].identifier};
+    let mpos = {x: event.changedTouches[id].pageX - rect.left,
+                y: event.changedTouches[id].pageY - rect.top,
+                id: event.changedTouches[id].identifier};
+    mpos.x *= devicePixelRatio_;
+    mpos.y *= devicePixelRatio_;
+    return mpos;
 }
 
 function get_touch_idx (key_id)
@@ -302,8 +309,9 @@ function startWebGL()
     //const texid  = GLUtil.create_image_texture (gl, "../assets/webgl.png");
     //const video  = GLUtil.create_video_texture (gl, "../assets/BigBuckBunny_640x360.mp4");
     //const camera = GLUtil.create_camera_texture (gl);
-    let win_w = canvas.clientWidth;
-    let win_h = canvas.clientHeight;
+    devicePixelRatio_ = window.devicePixelRatio;
+    let win_w = canvas.clientWidth  * devicePixelRatio_;
+    let win_h = canvas.clientHeight * devicePixelRatio_;
     s_win_w = win_w;
     s_win_h = win_h;
 
