@@ -8,9 +8,10 @@ function startWebGL()
 
     /* renderer */
     const renderer = new THREE.WebGLRenderer({
-        alpha : false,
+        alpha                : false,
         preserveDrawingBuffer: false,
-        canvas: document.querySelector('#glcanvas')
+        antialias            : true,
+        canvas               : document.querySelector('#glcanvas')
     });
 
     renderer.setPixelRatio(window.devicePixelRatio);
