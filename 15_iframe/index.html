@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="en">
+
+<!------------------------------------------------------------------
+        H E A D
+  ------------------------------------------------------------------>
+<head>
+    <title>WebGL Example</title>
+    <meta charset="utf-8">
+
+    <style>
+        body {
+            margin: 0;
+            background-color: white;
+        }
+        #webgl_container {
+            display: flex;
+            flex-direction: column;
+            height:   100vh;
+        }
+        #webgl_header {
+            margin: 0;
+            display:  block;  /* prevents scrollbar */
+            width:    100vw;
+            height:   150px;
+        }
+        #webgl_content {
+            margin: 0;
+            display:  block;  /* prevents scrollbar */
+            width:    100vw;
+            height:   100vh;
+        }
+
+        iframe {
+            border: 0;
+            display:  block;  /* prevents scrollbar */
+            width:    100%;
+            height:   100%;
+        }
+    </style>
+</head>
+
+<!------------------------------------------------------------------
+        B O D Y
+  ------------------------------------------------------------------>
+<body>
+
+<div id="webgl_container">
+    <div id="webgl_header">
+        <iframe src="frame_app.html"></iframe>
+    </div>
+
+    <div id="webgl_content">
+        <iframe src="frame_app.html"></iframe>
+    </div>
+</div>
+
+</body>
+
+
+</html>
