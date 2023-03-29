@@ -15,8 +15,43 @@ let s_mdl_qtn0 = new Array(4);
 let s_mdl_mtx  = new Array(16);
 let devicePixelRatio_;
 
-let s_win_w;
-let s_win_h;
+let s_win_w = 0;
+let s_win_h = 0;
+
+function
+OnResize (gl)
+{
+    let w = gl.canvas.width;
+    let h = gl.canvas.height;
+
+    if ((s_win_w == w) && (s_win_h == h))
+        return;
+
+    s_win_w = w;
+    s_win_h = h;
+
+    gl.viewport (0, 0, w, h);
+    pmeter.resize (gl, w, h, h - 100);
+    dbgstr.resize_viewport (gl, w, h);
+    r2d.resize_viewport (gl, w, h);
+}
+
+function
+check_resize_canvas (gl, canvas)
+{
+//  devicePixelRatio_ = window.devicePixelRatio;
+
+    let display_w = Math.floor(canvas.clientWidth  * devicePixelRatio_);
+    let display_h = Math.floor(canvas.clientHeight * devicePixelRatio_);
+
+    if (canvas.width  != display_w ||
+        canvas.height != display_h)
+    {
+        canvas.width  = display_w;
+        canvas.height = display_h;
+        OnResize (gl);
+    }
+}
 
 
 /* ---------------------------------------------------------------- *
@@ -179,8 +214,6 @@ function startWebGL()
     devicePixelRatio_ = window.devicePixelRatio;
     let win_w = canvas.clientWidth  * devicePixelRatio_;
     let win_h = canvas.clientHeight * devicePixelRatio_;
-    s_win_w = win_w;
-    s_win_h = win_h;
 
     teapot.init_teapot (gl, win_w/win_h);
     r2d.init_2d_render (gl, win_w, win_h);
@@ -206,6 +239,10 @@ function startWebGL()
         let cur_time_ms = performance.now();
         let interval_ms = cur_time_ms - prev_time_ms;
         prev_time_ms = cur_time_ms;
+
+        check_resize_canvas (gl, canvas);
+        win_w = s_win_w;
+        win_h = s_win_h;
 
         gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
