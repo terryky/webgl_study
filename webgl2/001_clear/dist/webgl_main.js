@@ -1,0 +1,1 @@
+(()=>{"use strict";(function(){const e=document.querySelector("#glcanvas").getContext("webgl2");e?(e.clearColor(.5,.5,.5,1),e.clear(e.COLOR_BUFFER_BIT)):alert("Failed to initialize WebGL2.")})()})();
