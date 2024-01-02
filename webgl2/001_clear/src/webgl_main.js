@@ -1,5 +1,5 @@
-export function
-WebGLMain()
+function
+startWebGL()
 {
     const canvas = document.querySelector('#glcanvas');
     const gl = canvas.getContext('webgl2');
@@ -13,4 +13,4 @@ WebGLMain()
     gl.clear (gl.COLOR_BUFFER_BIT);
 }
 
-WebGLMain();
+window.startWebGL = startWebGL;
