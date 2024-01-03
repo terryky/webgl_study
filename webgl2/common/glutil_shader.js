@@ -1,7 +1,7 @@
-export let GLUtil = {};
+export let Shader = {};
 
 
-GLUtil.load_file_sync = function (url) 
+Shader.load_file_sync = function (url)
 {
     var xhr = new XMLHttpRequest();
     xhr.open ("GET", url, false);
@@ -13,7 +13,7 @@ GLUtil.load_file_sync = function (url)
 /* ----------------------------------------------------------- *
  *   create & compile shader
  * ----------------------------------------------------------- */
-GLUtil.compile_shader_text = function (gl, shader_type, text)
+Shader.compile_shader_text = function (gl, shader_type, text)
 {
     const shader = gl.createShader (shader_type);
     gl.shaderSource (shader, text);
@@ -28,10 +28,10 @@ GLUtil.compile_shader_text = function (gl, shader_type, text)
     return shader;
 }
 
-GLUtil.compile_shader_file = function (gl, shader_type, fname)
+Shader.compile_shader_file = function (gl, shader_type, fname)
 {
-    const text = GLUtil.load_file_sync (fname).responseText;
-    const shader = GLUtil.compile_shader_text (gl, shader_type, text);
+    const text = Shader.load_file_sync (fname).responseText;
+    const shader = Shader.compile_shader_text (gl, shader_type, text);
     return shader;
 }
 
@@ -39,7 +39,7 @@ GLUtil.compile_shader_file = function (gl, shader_type, fname)
 /* ----------------------------------------------------------- *
  *    link shaders
  * ----------------------------------------------------------- */
-GLUtil.link_shaders = function (gl, vertShader, fragShader)
+Shader.link_shaders = function (gl, vertShader, fragShader)
 {
     const program = gl.createProgram();
 
@@ -55,11 +55,11 @@ GLUtil.link_shaders = function (gl, vertShader, fragShader)
 }
 
 
-GLUtil.generate_shader = function (gl, str_vs, str_fs)
+Shader.generate_shader = function (gl, str_vs, str_fs)
 {
-    const vs = GLUtil.compile_shader_text (gl, gl.VERTEX_SHADER,   str_vs);
-    const fs = GLUtil.compile_shader_text (gl, gl.FRAGMENT_SHADER, str_fs);
-    const prog = GLUtil.link_shaders (gl, vs, fs);
+    const vs = Shader.compile_shader_text (gl, gl.VERTEX_SHADER,   str_vs);
+    const fs = Shader.compile_shader_text (gl, gl.FRAGMENT_SHADER, str_fs);
+    const prog = Shader.link_shaders (gl, vs, fs);
 
     gl.deleteShader (vs);
     gl.deleteShader (fs);

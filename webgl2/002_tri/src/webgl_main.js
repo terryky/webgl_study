@@ -1,4 +1,4 @@
-import {GLUtil} from "../../common/util_shader.js"
+import * as GLUtil from "../../common/glutil.js"
 
 
 const vsSource = `#version 300 es
@@ -91,7 +91,7 @@ startWebGL()
     gl.clearColor (0.5, 0.5, 0.5, 1.0);
     gl.clear (gl.COLOR_BUFFER_BIT);
 
-    const sobj = GLUtil.generate_shader (gl, vsSource, fsSource);
+    const sobj = GLUtil.Shader.generate_shader (gl, vsSource, fsSource);
     const vbos = init_vbos (gl);
     const vao  = init_vaos(gl, sobj, vbos);
 
