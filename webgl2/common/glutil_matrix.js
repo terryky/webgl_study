@@ -3,8 +3,8 @@ export let Matrix = {};
 
 const M_PId180f = (3.1415926 / 180.0)
 
-function DEG_TO_RAD(degree) {return (Math.PI / 180.0 * degree);}
-function RAD_TO_DEG(rad)    {return (rad * 180.0 / Math.PI); }
+Matrix.DEG_TO_RAD = function (degree) {return (Math.PI / 180.0 * degree);}
+Matrix.RAD_TO_DEG = function (rad)    {return (rad * 180.0 / Math.PI); }
 
 
 Matrix.vec3_length = function (v)
@@ -21,11 +21,11 @@ Matrix.vec3_normalize = function (v)
 {
     let len, invLen;
 
-    len = vec3_length (v);
+    len = Matrix.vec3_length (v);
     if (len == 0.0)
     {
         return;
-    }    
+    }
     invLen = 1.0 / len;
 
     v[0] *= invLen;
@@ -39,7 +39,7 @@ Matrix.vec2_normalize = function (v)
 {
     let len, invLen;
 
-    len = vec2_length (v);
+    len = Matrix.vec2_length (v);
     if (len == 0.0)
     {
         return;
@@ -54,8 +54,8 @@ Matrix.vec2_normalize = function (v)
 
 Matrix.vec2_angle = function (v)
 {
-    rad = Math.atan2(v[1], v[0]);
-    return RAD_TO_DEG(rad);
+    let rad = Math.atan2(v[1], v[0]);
+    return Matrix.RAD_TO_DEG(rad);
 }
 
 Matrix.vec3_calc_screenpos = function (vp_x, vp_y, vp_w, vp_h, m,
@@ -411,7 +411,7 @@ Matrix.rotate = function (m, angle, x, y, z)
         v[0] = x;
         v[1] = y;
         v[2] = z;
-        vec3_normalize (v);
+        Matrix.vec3_normalize (v);
 
         x = v[0];
         y = v[1];
@@ -579,13 +579,13 @@ Matrix.modellookat = function (m, src_pos, tgt_pos, twist)
 
     if (deltaV[0] != 0.0 || deltaV[1] != 0.0)
     {
-        let lenXZ = vec2_normalize (deltaV);
+        let lenXZ = Matrix.vec2_normalize (deltaV);
         cosA = deltaV[1];
         sinA = deltaV[0];
 
         deltaV[0] = lenXZ;
         deltaV[1] = tgt_pos[1] - src_pos[1];
-        vec2_normalize (deltaV);
+        Matrix.vec2_normalize (deltaV);
         cosB = deltaV[0];
         sinB = deltaV[1];
     }
