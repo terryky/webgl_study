@@ -3949,6 +3949,10 @@ teapot.draw_teapot_vbo = function (gl)
 }
 
 
+teapot.resize_viewport = function (w, h)
+{
+    matrix_proj_perspective (teapot.matPrj, 72.0, w / h, 1, 1000);
+}
 
 teapot.init_teapot = function (gl, aspect)
 {
