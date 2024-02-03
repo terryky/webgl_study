@@ -283,6 +283,7 @@ function startWebGL()
         dbgstr.draw_dbgstr (gl, str, 10, 10);
         str = "window(" + canvas.width + ", " + canvas.height + ")";
         dbgstr.draw_dbgstr (gl, str, canvas.width - 200, 0);
+        dbgstr.draw_dbgstr (gl, str, canvas.width - 200, canvas.height - 22);
 
         count ++;
         stats.end();
